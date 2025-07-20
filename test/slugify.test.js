@@ -7,9 +7,9 @@ describe('slugify', () => {
     expect(slugify('Hello World')).toBe('hello-world');
   });
 
-//   test('should handle multiple spaces', () => {
-//     expect(slugify('Hello   World')).toBe('hello-world');
-//   });
+  test('should handle multiple spaces', () => {
+    expect(slugify('Hello   World')).toBe('hello-world');
+  });
 
   test('should remove special characters', () => {
     expect(slugify('Hello World!@#$%^&*()')).toBe('hello-world');
