@@ -1,0 +1,49 @@
+# .github/workflows/compatibility-check.yml
+
+name: Node.js Compatibility Check
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    # The name of the job will be dynamic, including the OS and Node version.
+    name: Test on ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
+    
+    # Use a strategy to create a matrix of jobs.
+    strategy:
+      # We don't want the whole matrix to fail if one job fails.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x, 22.x]
+
+    # The runner for each job is determined by the matrix.os value.
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Node.js using the version from the matrix.
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      # Step for caching npm dependencies.
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          # The path to cache is the npm cache directory.
+          path: ~/.npm
+          # The cache key is unique to the OS and the package-lock.json file.
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          # A fallback key.
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Run Tests
+        run: npm test
